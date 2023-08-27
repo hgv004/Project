@@ -1,6 +1,6 @@
-create database 8week;
+create database dannys_diner;
 
-use 8week;
+use dannys_diner;
 
 CREATE TABLE sales (
   `customer_id` VARCHAR(264),
@@ -28,7 +28,7 @@ VALUES
   ('C', '2021-01-01', '3'),
   ('C', '2021-01-07', '3');
 
- 
+select * from sales;
 
 CREATE TABLE menu (
   product_id INT,
@@ -57,12 +57,12 @@ VALUES
 -----------------------------------------------------------------------------------------------------
 
 -- 1. What is the total amount each customer spent at the restaurant?
-create view final_view as (
+create or replace view final_view as (
 select s.customer_id , s.order_date , s.product_id , m.product_name , m.price , m2.join_date  
 from sales s
 join menu m 
 on s.product_id = m.product_id 
-join members m2 
+left join members m2 
 on s.customer_id = m2.customer_id );
 
 select * from final_view;
@@ -101,13 +101,52 @@ group by customer_id, product_name
 order by customer_id, product_name;
 
 -- 6. Which item was purchased first by the customer after they became a member?
-SELECT *, DATEDIFF(order_date,join_date) AS diff 
-FROM final_view fv
-WHERE DATEDIFF(order_date,join_date) > 0;
+with cte as (
+	select 	customer_id , 
+			product_name, 
+			DATEDIFF(order_date,join_date) as diff, 
+			rank() over(partition by customer_id order by DATEDIFF(order_date,join_date)) as rn
+	from final_view
+	where DATEDIFF(order_date,join_date)> 0)
+select customer_id, product_name  
+from cte
+where cte.rn =1;
 
 -- 7. Which item was purchased just before the customer became a member?
 
+select * from final_view;
+
+with cte as (
+	select 	customer_id , 
+			product_name, 
+			datediff(join_date, order_date) as diff, 
+			rank() over(partition by customer_id order by datediff(join_date, order_date)) as rn
+	from final_view
+	where datediff(join_date, order_date) >= 0)
+select customer_id, product_name  
+from cte
+where cte.rn =1;
+
 -- 8. What is the total items and amount spent for each member before they became a member?
+select customer_id , count(product_id) as total_items, sum(price) as total_amt 
+from final_view
+where datediff(join_date, order_date) > 0
+group by customer_id;
+
 -- 9.  If each $1 spent equates to 10 points and sushi has a 2x points multiplier - how many points would each customer have?
+select customer_id , sum(if(product_name = 'sushi', 20*price, 10* price) ) as total_pts
+from final_view
+group by customer_id;
+
 -- 10. In the first week after a customer joins the program (including their join date) they earn 2x points on all items, not just sushi - how many points do customer A and B have at the end of January?
- 
+select 	customer_id ,
+		sum(case WHEN datediff(order_date, join_date) between 0 and 7 THEN 20*price
+    		WHEN product_name = 'sushi' THEN 20*price
+	    	ELSE 10*price end) as final_pts
+from final_view
+group by customer_id;
+
+select 	customer_id, product_name , 
+		order_date , join_date ,
+		if(datediff(order_date, join_date) between 0 and 7,1,0)
+from final_view;
