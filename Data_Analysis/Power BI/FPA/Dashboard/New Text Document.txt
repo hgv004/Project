@@ -1,0 +1,123 @@
+Charts
+1. Top 5 Agents (Ticket Solvers | Rating)
+2. Avg resolution time by Issue type | Req Category
+3. Tickets Trend (Forecast)
+4. Satisfaction score % in semi circle progress chart (Have Target)
+5. Tickets by Priority
+6. Tickets by Severiy
+7. Within SLA % (Have Target)
+8. Add % Change from Prior Year
+9. Same Day Resolutions (KPI)
+10. Age group wise performance
+11. Weekdays wise Tickets
+12. Agent | Tickets | Days | Rating -Table
+13. KPI Cards Ideas : Top Rated Agent | Top Requested Category | Top requested Day | High P and High S Tickets Solved [Can add avg time]
+14. Sev Priority tickets counts in metrics Can Have parameter which switch the measure
+15. Show Rating counts for Agent table
+16. Top Rated Agent, Worst Rated Agent, Fastest Agent, Slowest Agent 
+
+https://dribbble.com/shots/21034705-EHS-Dashboard
+https://coolors.co/palette/011627-fdfffc-2ec4b6-e71d36-ff9f1c
+
+SELECT 'provider_email', max('Appointment Date') , min('Appointment Date')
+FROM "Accounts"
+group by 'provider_email'
+
+dd MMM, yyyy HH:mm:ss
+
+Analysis
+
+Please enter the 2 pages of your report as PDF format in a LinkedIn post with the 
+following wording. Please post the same in the LinkedIn’s Community Group.
+
+
+I am participating in FP20 Analytics Challenge 8” please see screenshots of my 
+report pages in PDF format if possible.
+
+- Data Preprocessing :
+	Extracted First Name Last Name from Email for Agent Table
+	Prepare Date of Birth from the 3 columns of Agent tables and Extracted Age of Agent at 31'st Dec, 2020
+	Splited columns Severity and Priority to be split into 2 columns Id and type respectively for Tickets Table
+- Data Modeling :
+	Prepare seperate tables for Severity, Priority, Request and Issue Category, Date Table 
+	Connected dimension table with Fact table of Tickets 
+- Data Analysis :
+	There are total 2 Pages of Dashboard present in this Dashboard
+	1. It HelpDesk Tickets Dashboard
+	2. It HelpDesk Agent Dashboard
+	
+	- For It HelpDesk Tickets Dashboard :
+		- Added 3 KPI Metrics :
+			1. Total Tickets 
+			2. Avg Resolution Time
+			3. Customer Satisfaction %
+			4. Urgent and Prioritized Tickets Resolved
+			5. Same day Tickets Resolved
+		- Categorized the Tickets based on SLA status
+		- Added Trend of Tickets, Tickets | Avg Resolution Time by Issue type and Category
+		- Added table with Heatmap showing tickets by Severity and Priority
+		
+	- For It HelpDesk Agent Dashboard :
+		- Added 3 KPI Metrics :
+			1. Highest Rated Agent 
+			2. Lowest Rated Agent
+			3. Fastest Agent ( Lowest Avg Resolution Time )
+			4. Slowest Agent ( Highest Avg Resolution Time )
+			5. Avg Rating
+		- Added Tickets by Age group and Rating frequency
+		- Added table showing Agent Details and their performance
+		
+- Tools Used : 
+	1. Power query (Data Modeling, Data Preprocessing)
+	2. Power BI (Data Visualization, Dax for Analysis)
+
+Thank You @Federico Pastor for the challenge and the dataset #FP20Analytics and #FP20AnalyticsITTicketsAnalysis
+
+- Please find the interactive Dashboard Link : "Link"
+
+
+📊🚀 Excited to share my work on the FP20 Analytics Challenge 8! 🚀📊
+
+I participated in the challenge and successfully analyzed the IT HelpDesk Tickets using Power Query and Power BI. 🎯 Here's a glimpse of what I accomplished:
+
+📈 Data Preprocessing:
+- Extracted First Name and Last Name from Email to enhance the Agent Table.
+- Prepared Date of Birth from multiple columns in the Agent Table and calculated Agent Age at 31st Dec, 2020.
+- Split the Severity and Priority columns into separate columns "Id" and "Type" for the Tickets Table.
+
+📊 Data Modeling:
+- Created separate tables for Severity, Priority, Request, Issue Category, and Date to enhance data analysis.
+- Connected dimension tables with the Fact table of Tickets to build a solid foundation.
+
+🔍 Data Analysis:
+- Designed an interactive Dashboard with 2 Pages:
+   1. IT HelpDesk Tickets Dashboard:
+      - Added 3 KPI Metrics: Total Tickets, Avg Resolution Time, and Customer Satisfaction %.
+      - Analyzed Urgent and Prioritized Tickets Resolved and Same day Tickets Resolved.
+      - Categorized Tickets based on SLA status.
+      - Presented the trend of Tickets and 
+	  - Visualized Tickets | Avg Resolution Time by Issue type and Category.
+      - Visualized a table with Heatmap showcasing Tickets by Severity and Priority.
+
+   2. IT HelpDesk Agent Dashboard:
+      - Introduced 5 KPI Metrics: 
+		1. Highest Rated Agent 
+		2. Lowest Rated Agent
+		3. Fastest Agent ( Lowest Avg Resolution Time )
+		4. Slowest Agent ( Highest Avg Resolution Time )
+		5. Avg Rating
+      - Explored Tickets by Age group and Rating frequency.
+      - Displayed a table featuring Agent Details and their performance.
+
+🔧 Tools Used:
+- Power Query for Data Modeling and Data Preprocessing.
+- Power BI for Data Visualization and DAX for advanced analysis.
+
+Special thanks to @Federico Pastor for organizing the challenge and providing the dataset. 🙌
+
+🔗 Explore my interactive Dashboard here: https://www.novypro.com/project/it-tickets-dashboard-power-bi
+
+#FP20Analytics #FP20AnalyticsITTicketsAnalysis #DataAnalytics #PowerBI #DataVisualization #DataAnalysis #DAX #ITHelpDesk #PowerQuery #BusinessIntelligence
+
+Looking forward to your valuable feedback and support! 🤝 Let's connect and geek out about data-driven insights! 📊💡
+
