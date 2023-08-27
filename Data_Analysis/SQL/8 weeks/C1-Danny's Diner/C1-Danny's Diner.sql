@@ -67,12 +67,12 @@ on s.customer_id = m2.customer_id );
 
 select * from final_view;
 
-select customer_id,sum(price)
+select customer_id,sum(price) as total_amt
 from final_view
 group by customer_id ;
 
 -- 2. How many days has each customer visited the restaurant?
-select customer_id, count(distinct order_date)
+select customer_id, count(distinct order_date) as times_visits
 from final_view
 group by customer_id ;
 
@@ -104,10 +104,10 @@ order by customer_id, product_name;
 with cte as (
 	select 	customer_id , 
 			product_name, 
-			DATEDIFF(order_date,join_date) as diff, 
-			rank() over(partition by customer_id order by DATEDIFF(order_date,join_date)) as rn
+			DATEDIFF(join_date,order_date) as diff, 
+			rank() over(partition by customer_id order by DATEDIFF(join_date,order_date)) as rn
 	from final_view
-	where DATEDIFF(order_date,join_date)> 0)
+	where DATEDIFF(join_date,order_date)>= 0)
 select customer_id, product_name  
 from cte
 where cte.rn =1;
@@ -122,7 +122,7 @@ with cte as (
 			datediff(join_date, order_date) as diff, 
 			rank() over(partition by customer_id order by datediff(join_date, order_date)) as rn
 	from final_view
-	where datediff(join_date, order_date) >= 0)
+	where datediff(join_date, order_date) > 0)
 select customer_id, product_name  
 from cte
 where cte.rn =1;
@@ -140,13 +140,9 @@ group by customer_id;
 
 -- 10. In the first week after a customer joins the program (including their join date) they earn 2x points on all items, not just sushi - how many points do customer A and B have at the end of January?
 select 	customer_id ,
-		sum(case WHEN datediff(order_date, join_date) between 0 and 7 THEN 20*price
+		sum(case WHEN datediff(order_date, join_date) between 0 and 6 THEN 20*price
     		WHEN product_name = 'sushi' THEN 20*price
 	    	ELSE 10*price end) as final_pts
 from final_view
+where order_date <="2021-01-31"
 group by customer_id;
-
-select 	customer_id, product_name , 
-		order_date , join_date ,
-		if(datediff(order_date, join_date) between 0 and 7,1,0)
-from final_view;
