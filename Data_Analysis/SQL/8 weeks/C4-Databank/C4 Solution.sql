@@ -177,4 +177,79 @@ count(distinct cte3.customer_id) / (select count(distinct customer_id) from cust
 from cte3
 where cte3.lb_check =1;
 
+=======================================================================
+-- C. Data Allocation Challenge
+/*To test out a few different hypotheses - the Data Bank team wants to run an experiment where different groups of customers would be allocated data using 3 different options:
 
+Option 1: data is allocated based off the amount of money at the end of the previous month
+Option 2: data is allocated on the average amount of money kept in the account in the previous 30 days
+Option 3: data is updated real-time
+For this multi-part challenge question - 
+you have been requested to generate the following data elements to help the Data Bank team estimate how much data will need to be provisioned for each option:
+
+running customer balance column that includes the impact each transaction
+customer balance at the end of each month
+minimum, average and maximum values of the running balance for each customer
+Using all of the data available - how much data would have been required for each option on a monthly basis?*/
+
+
+-- 1. running customer balance column that includes the impact each transaction
+
+SELECT 	customer_id ,
+		txn_date ,
+		txn_type ,
+		if(txn_type = 'deposit', txn_amount , 0-txn_amount) as txn,
+		sum(if(txn_type = 'deposit', txn_amount , 0-txn_amount)) 
+			over(partition by customer_id order by txn_date rows between unbounded preceding  and current row) as running_bal
+FROM customer_transactions
+order by customer_id , txn_date ;
+
+-- 2. customer balance at the end of each month
+
+with cte as (
+	SELECT 	customer_id ,
+			date_format(txn_date ,"%b-%y") as my,
+			last_day(txn_date) as ld,
+			sum(if(txn_type = 'deposit', txn_amount , 0-txn_amount)) as total_txn
+	FROM customer_transactions
+	group by customer_id , my, ld
+	order by customer_id , ld)
+select 	cte.customer_id , 
+		cte.ld,
+		sum(cte.total_txn) over(partition by customer_id order by cte.ld) as month_balance
+from cte;
+
+-- 3. minimum, average and maximum values of the running balance for each customer
+
+=========== Added Calender table ===================
+
+create table calendar as (
+with recursive cte as (
+	-- customize start date here
+	select concat(year(min(txn_date)),'-01-01') as calendar_date from customer_transactions ct  
+	union all
+	select date_add(calendar_date, interval 1 day) as calendar_date from cte 
+	-- customize end date here
+	where year(date_add(calendar_date, interval 1 day)) <= 2020
+)
+select
+calendar_date
+from cte);
+
+=========== Added Running Balance View ===================
+
+create or replace view running_bal as (
+SELECT 	customer_id ,
+		txn_date ,
+		txn_type ,
+		if(txn_type = 'deposit', txn_amount , 0-txn_amount) as txn,
+		sum(if(txn_type = 'deposit', txn_amount , 0-txn_amount)) 
+			over(partition by customer_id order by txn_date rows between unbounded preceding  and current row) as running_bal
+FROM customer_transactions
+order by customer_id , txn_date );
+
+select rb.customer_id , c.calendar_date , rb.running_bal  
+from calendar c
+left join running_bal rb 
+on c.calendar_date = rb.txn_date 
+order by rb.customer_id , c.calendar_date;
