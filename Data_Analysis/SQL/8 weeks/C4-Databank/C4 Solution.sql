@@ -248,8 +248,19 @@ SELECT 	customer_id ,
 FROM customer_transactions
 order by customer_id , txn_date );
 
-select rb.customer_id , c.calendar_date , rb.running_bal  
-from calendar c
-left join running_bal rb 
-on c.calendar_date = rb.txn_date 
-order by rb.customer_id , c.calendar_date;
+with cte as (
+	select 	customer_id , 
+			txn_date as from_date, 
+			if(lead(txn_date) over(partition by customer_id order by txn_date) is null, txn_date , 
+				date_add(lead(txn_date) over(partition by customer_id order by txn_date), interval -1 day)) as to_date,
+			running_bal as bal
+	from running_bal rb
+	order by rb.customer_id , rb.txn_date)
+select 	customer_id , 
+		min(bal) as min_bal, 
+		max(bal) as max_bal, sum(datediff(cte.to_date, cte.from_date) * bal) / sum(datediff(cte.to_date, cte.from_date)) as avg_bal
+from cte
+group by customer_id ;
+
+
+
