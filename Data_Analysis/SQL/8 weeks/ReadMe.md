@@ -42,7 +42,7 @@ FROM balanced_tree.sales s;
 ```sql
 SELECT COUNT(DISTINCT s.txn_id) AS unq_transaction
 FROM balanced_tree.sales s;
-```s
+```
 ### 2. What is the average unique products purchased in each transaction?
 ```sql
 WITH cte AS (
