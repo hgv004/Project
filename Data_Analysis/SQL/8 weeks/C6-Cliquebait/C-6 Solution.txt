@@ -1,0 +1,96 @@
+-- Using the available datasets - answer the following questions using a single query for each one:
+
+-- How many users are there?
+select count( distinct user_id)
+from users;
+-- How many cookies does each user have on average?
+with cte as (
+    select user_id, count( cookie_id) as ct
+    from users
+    group by user_id
+    order by count( cookie_id) desc)
+select round(avg(ct), 0) as avg_cookies
+from cte;
+-- What is the unique number of visits by all users per month?
+SELECT 
+  EXTRACT(MONTH FROM event_time) as month, 
+  COUNT(DISTINCT visit_id) AS unique_visit_count
+FROM events
+GROUP BY EXTRACT(MONTH FROM event_time);
+-- What is the number of events for each event type?
+SELECT 
+  event_type, 
+  COUNT(*) AS event_count
+FROM events
+GROUP BY event_type
+ORDER BY event_type;
+-- What is the percentage of visits which have a purchase event?
+SELECT 
+  round((count( distinct(iff(ei.event_name = 'Purchase', e.visit_id, null)))
+  / 
+  COUNT(distinct visit_id))*100,2) AS unique_visits_pct
+FROM events e
+left join event_identifier ei
+on e.event_type = ei.event_type;
+
+-- What is the percentage of visits which view the checkout page but do not have a purchase event?
+SELECT 
+  count(distinct iff(ph."page_name" = 'Checkout' and ei.event_name <> 'Purchase', e.visit_id,null)) as dd,
+  count(distinct iff(ph."page_name" = 'Checkout', e.visit_id,null)) as dm
+FROM events e
+left join event_identifier ei
+on e.event_type = ei.event_type
+left join page_hierarchy ph
+on ph."page_id" = e.page_id;
+
+SELECT 
+  e.visit_id,
+  ei.event_name,
+  ph."page_name"
+FROM events e
+left join event_identifier ei
+on e.event_type = ei.event_type
+left join page_hierarchy ph
+on ph."page_id" = e.page_id
+where ei.event_name in ('Page View', 'Purchase') and ph."page_name" in ('Checkout')
+order by e.visit_id;
+
+select count(visit_id), count(distinct visit_id)
+from events;
+
+-- What are the top 3 pages by number of views?
+SELECT 
+  ph."page_name",
+  count(distinct e.visit_id) as views
+FROM events e
+left join event_identifier ei
+on e.event_type = ei.event_type
+left join page_hierarchy ph
+on ph."page_id" = e.page_id
+group by ph."page_name"
+order by 2 desc
+limit 3;
+
+-- What is the number of views and cart adds for each product category?
+SELECT 
+  ph."product_category",
+  count(iff(ei.event_name='Page View', e.visit_id, null)) as total_views,
+  count(iff(ei.event_name='Add to Cart', e.visit_id, null)) as cart_ads
+FROM events e
+left join event_identifier ei
+on e.event_type = ei.event_type
+left join page_hierarchy ph
+on ph."page_id" = e.page_id
+group by ph."product_category"
+order by 2 desc;
+
+-- What are the top 3 products by purchases?
+select 
+  ph."product_category",
+  count(e.event_type)
+FROM events e
+left join event_identifier ei
+on e.event_type = ei.event_type
+left join page_hierarchy ph
+on ph."page_id" = e.page_id
+group by ph."product_category";
